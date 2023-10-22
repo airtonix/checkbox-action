@@ -174,7 +174,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getDiff = exports.getCurrentBody = exports.getPreviousBody = void 0;
+exports.getDiff = exports.getCurrentUnchecked = exports.getCurrentChecked = exports.getPreviousUnchecked = exports.getPreviousChecked = exports.getCurrentBody = exports.getPreviousBody = void 0;
 const github = __importStar(__nccwpck_require__(5438));
 function getPreviousBody() {
     var _a, _b;
@@ -191,23 +191,41 @@ function getCurrentBody() {
     return github.context.payload.pull_request.body || '';
 }
 exports.getCurrentBody = getCurrentBody;
-function getDiff(previousBody, currentBody) {
+const CHECK_REGEXP = /^\s*- \[x\] /;
+const UNCHECK_REGEXP = /^\s*- \[ \] /;
+function getPreviousChecked(previousBody) {
     const previousLines = previousBody.split('\n');
+    return previousLines
+        .filter(line => CHECK_REGEXP.test(line))
+        .map(line => line.replace(CHECK_REGEXP, ''));
+}
+exports.getPreviousChecked = getPreviousChecked;
+function getPreviousUnchecked(previousBody) {
+    const previousLines = previousBody.split('\n');
+    return previousLines
+        .filter(line => UNCHECK_REGEXP.test(line))
+        .map(line => line.replace(UNCHECK_REGEXP, ''));
+}
+exports.getPreviousUnchecked = getPreviousUnchecked;
+function getCurrentChecked(currentBody) {
     const currentLines = currentBody.split('\n');
-    const checkRegexp = /^\s*- \[x\] /;
-    const uncheckRegexp = /^\s*- \[ \] /;
-    const prevChecked = previousLines
-        .filter(line => checkRegexp.test(line))
-        .map(line => line.replace(checkRegexp, ''));
-    const prevUnchecked = previousLines
-        .filter(line => uncheckRegexp.test(line))
-        .map(line => line.replace(uncheckRegexp, ''));
-    const currChecked = currentLines
-        .filter(line => checkRegexp.test(line))
-        .map(line => line.replace(checkRegexp, ''));
-    const currUnchecked = currentLines
-        .filter(line => uncheckRegexp.test(line))
-        .map(line => line.replace(uncheckRegexp, ''));
+    return currentLines
+        .filter(line => CHECK_REGEXP.test(line))
+        .map(line => line.replace(CHECK_REGEXP, ''));
+}
+exports.getCurrentChecked = getCurrentChecked;
+function getCurrentUnchecked(currentBody) {
+    const currentLines = currentBody.split('\n');
+    return currentLines
+        .filter(line => UNCHECK_REGEXP.test(line))
+        .map(line => line.replace(UNCHECK_REGEXP, ''));
+}
+exports.getCurrentUnchecked = getCurrentUnchecked;
+function getDiff(previousBody, currentBody) {
+    const prevChecked = getPreviousChecked(previousBody);
+    const prevUnchecked = getPreviousUnchecked(previousBody);
+    const currChecked = getCurrentChecked(currentBody);
+    const currUnchecked = getCurrentUnchecked(currentBody);
     const checked = currChecked.filter(line => prevUnchecked.includes(line));
     const unchecked = currUnchecked.filter(line => prevChecked.includes(line));
     return { checked, unchecked };
@@ -265,9 +283,12 @@ function run() {
             if (config_1.action === 'detect') {
                 const previousBody = (0, detect_1.getPreviousBody)();
                 const currentBody = (0, detect_1.getCurrentBody)();
-                const { checked, unchecked } = (0, detect_1.getDiff)(previousBody, currentBody);
+                const changed = (0, detect_1.getDiff)(previousBody, currentBody);
+                const checked = (0, detect_1.getCurrentChecked)(currentBody);
+                const unchecked = (0, detect_1.getCurrentUnchecked)(currentBody);
                 core.setOutput('checked', JSON.stringify(checked));
                 core.setOutput('unchecked', JSON.stringify(unchecked));
+                core.setOutput('changed', JSON.stringify(changed));
                 return;
             }
             let body = yield (0, check_1.getBody)();
