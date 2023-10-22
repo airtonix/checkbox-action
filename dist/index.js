@@ -177,11 +177,10 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getDiff = exports.getCurrentUnchecked = exports.getCurrentChecked = exports.getPreviousUnchecked = exports.getPreviousChecked = exports.getCurrentBody = exports.getPreviousBody = void 0;
 const github = __importStar(__nccwpck_require__(5438));
 function getPreviousBody() {
-    var _a, _b;
     if (!github.context.payload.pull_request) {
         throw new Error('This action only supports pull_request events');
     }
-    return ((_b = (_a = github.context.payload.changes) === null || _a === void 0 ? void 0 : _a.body) === null || _b === void 0 ? void 0 : _b.from) || '';
+    return github.context.payload.changes.body.from;
 }
 exports.getPreviousBody = getPreviousBody;
 function getCurrentBody() {

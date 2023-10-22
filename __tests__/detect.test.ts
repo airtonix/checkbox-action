@@ -18,7 +18,8 @@ abnormal line - [x] item 4
   - [x] item 2-4 unchecked
 
 removed line
-`
+`.split('\n')
+
     const currentBody = `
 # Title line
 normal line
@@ -33,7 +34,7 @@ added line
   - [ ] item 2-2 unchanged
   - [x] item 2-3 checked
   - [ ] item 2-4 unchecked
-`
+`.split('\n')
 
     const {checked, unchecked} = getDiff(previousBody, currentBody)
     expect(checked).toEqual(['item 2-1 checked', 'item 2-3 checked'])
@@ -57,7 +58,7 @@ added line
   - [ ] item 2-2 unchanged
   - [x] item 2-3 checked
   - [ ] item 2-4 unchecked
-`
+`.split('\n')
 
     const checked = getCurrentChecked(currentBody)
     expect(checked).toEqual([
@@ -67,6 +68,7 @@ added line
     ])
   })
 })
+
 describe('getCurrentUnChecked', () => {
   test('should return all unchecked items', () => {
     const currentBody = `
@@ -83,7 +85,7 @@ added line
   - [ ] item 2-2 unchanged
   - [x] item 2-3 checked
   - [ ] item 2-4 unchecked
-`
+`.split('\n')
 
     const checked = getCurrentUnchecked(currentBody)
     expect(checked).toEqual([
