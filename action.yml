@@ -1,5 +1,5 @@
 name: 'Checkbox Action Hotfix#148'
-description: 'Checks or unchecks a checkbox in the body of the pull request, or returns the list confirming the change in the checkbox. a temporary fork of Checkbox Action from @marocchino (which you should use instead'
+description: 'Checks or unchecks a checkbox in the body of the pull request, or returns the list confirming the change in the checkbox.'
 author: 'marocchino'
 github-token:
   action-input:
